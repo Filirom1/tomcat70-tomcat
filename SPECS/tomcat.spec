@@ -31,7 +31,7 @@
 %global jspspec 2.2
 %global major_version 7
 %global minor_version 0
-%global micro_version 76
+%global micro_version 82
 %global packdname apache-tomcat-%{version}-src
 %global servletspec 3.0
 %global elspec 2.2
@@ -81,15 +81,13 @@ Source21:      tomcat-functions
 Source22:      tomcat-preamble
 Source23:      tomcat-server
 Source24:      tomcat-named.service
-Source25:      tomcat-juli-adapters.jar
-Source26:      tomcat-juli.jar
+Source25:      http://www.apache.org/dist/tomcat/tomcat-%{major_version}/v%{version}/bin/extras/tomcat-juli-adapters.jar
+Source26:      http://www.apache.org/dist/tomcat/tomcat-%{major_version}/v%{version}/bin/extras/tomcat-juli.jar
 
 Patch0: %{name}-%{major_version}.%{minor_version}-bootstrap-MANIFEST.MF.patch
 Patch1: %{name}-%{major_version}.%{minor_version}-tomcat-users-webapp.patch
 Patch2: %{name}-7.0.54-rebase.patch
 Patch3: %{name}-7.0-catalina-policy.patch
-Patch4: %{name}-7.0.76-CVE-2017-5664.patch
-Patch5: %{name}-7.0.76-CVE-2017-5647.patch
 
 BuildArch:     noarch
 
@@ -238,8 +236,6 @@ find . -type f \( -name "*.bat" -o -name "*.class" -o -name Thumbs.db -o -name "
 %patch1 -p0
 %patch2 -p0
 %patch3 -p0
-%patch4 -p0
-%patch5 -p0
 
 %{__ln_s} $(build-classpath jakarta-taglibs-core) webapps/examples/WEB-INF/lib/jstl.jar
 %{__ln_s} $(build-classpath jakarta-taglibs-standard) webapps/examples/WEB-INF/lib/standard.jar
