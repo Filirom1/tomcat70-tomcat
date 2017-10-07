@@ -31,8 +31,6 @@
 %{?scl:%scl_package tomcat}
 %{!?scl:%global pkg_name %{name}}
 
-%global _scl_prefix /opt/toto
-
 %global jspspec 2.2
 %global major_version 7
 %global minor_version 0
@@ -246,6 +244,14 @@ find . -type f \( -name "*.bat" -o -name "*.class" -o -name Thumbs.db -o -name "
 %{__ln_s} $(build-classpath jakarta-taglibs-core) webapps/examples/WEB-INF/lib/jstl.jar
 %{__ln_s} $(build-classpath jakarta-taglibs-standard) webapps/examples/WEB-INF/lib/standard.jar
 
+%{__sed} -e "s|/etc/tomcat|%_sysconfdir/tomcat|g" \
+         -e "s|/etc/sysconfig/tomcat|%_sysconfdir/sysconfig/tomcat|g"\
+         -e "s|/usr/libexec/tomcat|%_libexecdir/tomcat|g"\
+         -e "s|/var/lib/tomcats|%_var/lib/tomcats|g"\
+         -e "s|/var/cache/tomcat|%_var/cache/tomcat|g"\
+         -e "s|/var/run/jsvc-tomcat|/var/run/toto-tomcat70-jsvc-tomcat|g"\
+         -i %{SOURCE1} %{SOURCE6} %{SOURCE20} %{SOURCE11} %{SOURCE7} %{SOURCE4} %{SOURCE21} %{SOURCE24} %{SOURCE22} 
+
 %build
 export OPT_JAR_LIST="xalan-j2-serializer"
 
@@ -275,7 +281,7 @@ export OPT_JAR_LIST="xalan-j2-serializer"
       -Dno.build.dbcp=true \
       -Dversion="%{version}" \
       -Dversion.build="%{micro_version}" \
-      -Djava.7.home=%{_root_exec_prefix}/lib/jvm/java-1.7.0/ \
+      -Djava.7.home=/usr/lib/jvm/java-1.7.0/ \
       deploy dist-prepare dist-source javadoc
 
     # remove some jars that we'll replace with symlinks later
@@ -366,9 +372,9 @@ popd
 %{__install} -m 0644 %{SOURCE4} \
     ${RPM_BUILD_ROOT}%{_sbindir}/%{pkg_name}
 %{__install} -m 0644 %{SOURCE11} \
-    ${RPM_BUILD_ROOT}%{_unitdir}/%{pkg_name}.service
+    ${RPM_BUILD_ROOT}%{_unitdir}/%{?scl_prefix}%{pkg_name}.service
 %{__install} -m 0644 %{SOURCE20} \
-    ${RPM_BUILD_ROOT}%{_unitdir}/%{pkg_name}-jsvc.service
+    ${RPM_BUILD_ROOT}%{_unitdir}/%{?scl_prefix}%{pkg_name}-jsvc.service
 # %{__ln_s} %{pkg_name} ${RPM_BUILD_ROOT}%{_sbindir}/d%{pkg_name}
 %{__sed} -e "s|\@\@\@TCLOG\@\@\@|%{logdir}|g" %{SOURCE5} \
     > ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/%{pkg_name}
@@ -388,7 +394,7 @@ popd
 %{__install} -m 0755 %{SOURCE23} \
     ${RPM_BUILD_ROOT}%{_libexecdir}/%{pkg_name}/server            
 %{__install} -m 0644 %{SOURCE24} \
-    ${RPM_BUILD_ROOT}%{_unitdir}/%{pkg_name}@.service 
+    ${RPM_BUILD_ROOT}%{_unitdir}/%{?scl_prefix}%{pkg_name}@.service 
 
 # create jsp and servlet API symlinks
 pushd ${RPM_BUILD_ROOT}%{_javadir}
@@ -401,11 +407,11 @@ pushd ${RPM_BUILD_ROOT}%{_javadir}
 popd
 
 pushd output/build
-    %{_root_bindir}/build-jar-repository lib apache-commons-collections \
+    /usr/bin/build-jar-repository lib apache-commons-collections \
                                         apache-commons-dbcp apache-commons-pool ecj 2>&1
     # need to use -p here with b-j-r otherwise the examples webapp fails to
     # load with a java.io.IOException
-    %{_root_bindir}/build-jar-repository -p webapps/examples/WEB-INF/lib \
+    /usr/bin/build-jar-repository -p webapps/examples/WEB-INF/lib \
     taglibs-core.jar taglibs-standard.jar 2>&1
 popd
 
@@ -516,7 +522,7 @@ done
 
 %post
 # install but don't activate
-%systemd_post %{pkg_name}.service
+%systemd_post %{?scl_prefix}%{pkg_name}.service
 
 %post jsp-%{jspspec}-api
 %{_root_sbindir}/update-alternatives --install %{_javadir}/jsp.jar jsp \
@@ -533,10 +539,10 @@ done
 %preun
 # clean tempdir and workdir on removal or upgrade
 %{__rm} -rf %{workdir}/* %{tempdir}/*
-%systemd_preun %{pkg_name}.service
+%systemd_preun %{?scl_prefix}%{pkg_name}.service
 
 %postun
-%systemd_postun_with_restart %{pkg_name}.service 
+%systemd_postun_with_restart %{?scl_prefix}%{pkg_name}.service 
 
 %postun jsp-%{jspspec}-api
 if [ "$1" = "0" ]; then
@@ -556,11 +562,11 @@ if [ "$1" = "0" ]; then
         %{_javadir}/%{pkg_name}-el-%{elspec}-api.jar
 fi
 
-%triggerun -- tomcat < 0:7.0.22-2
-/usr/bin/systemd-sysv-convert -- save tomcat > /dev/null 2>&1 || :
+%triggerun -- %{?scl_prefix}tomcat < 0:7.0.22-2
+/usr/bin/systemd-sysv-convert -- save %{?scl_prefix}tomcat > /dev/null 2>&1 || :
 # Run these becasue the SysV package being removed won't do them
-/sbin/chkconfig --del tomcat > /dev/null 2>&1 || :
-/bin/systemctl try-restart tomcat.service > /dev/null 2>&1 || :
+/sbin/chkconfig --del %{?scl_prefix}tomcat > /dev/null 2>&1 || :
+/bin/systemctl try-restart %{?scl_prefix}tomcat.service > /dev/null 2>&1 || :
 
 %files
 %defattr(0664,root,tomcat,0755)
@@ -568,8 +574,8 @@ fi
 %attr(0755,root,root) %{_bindir}/%{pkg_name}-digest
 %attr(0755,root,root) %{_bindir}/%{pkg_name}-tool-wrapper
 %attr(0755,root,root) %{_sbindir}/%{pkg_name}
-%attr(0644,root,root) %{_unitdir}/%{pkg_name}.service
-%attr(0644,root,root) %{_unitdir}/%{pkg_name}@.service
+%attr(0644,root,root) %{_unitdir}/%{?scl_prefix}%{pkg_name}.service
+%attr(0644,root,root) %{_unitdir}/%{?scl_prefix}%{pkg_name}@.service
 %attr(0755,root,root) %dir %{_libexecdir}/%{pkg_name}
 %attr(0755,root,root) %dir %{_localstatedir}/lib/tomcats
 %attr(0644,root,root) %{_libexecdir}/%{pkg_name}/functions
@@ -678,7 +684,7 @@ fi
 
 %files jsvc
 %defattr(755,root,root,0755)
-%attr(0644,root,root) %{_unitdir}/%{pkg_name}-jsvc.service
+%attr(0644,root,root) %{_unitdir}/%{?scl_prefix}%{pkg_name}-jsvc.service
 
 %changelog
 * Sat Oct 07 2017 Romain Philibert <Filirom1@gmail.com> 7.0.82-3
