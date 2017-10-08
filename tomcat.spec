@@ -41,14 +41,14 @@
 %global tcuid 91
 
 # FHS 2.3 compliant tree structure - http://www.pathname.com/fhs/2.3/
-%global basedir %{_var}/lib/%{pkg_name}
+%global basedir %{_localstatedir}/lib/%{pkg_name}
 %global appdir %{basedir}/webapps
 %global homedir %{_datadir}/%{pkg_name}
 %global bindir %{homedir}/bin
 %global confdir %{_sysconfdir}/%{pkg_name}
 %global libdir %{_datadir}/java/%{pkg_name}
-%global logdir %{_var}/log/%{pkg_name}
-%global cachedir %{_var}/cache/%{pkg_name}
+%global logdir %{_localstatedir}/log/%{pkg_name}
+%global cachedir %{_localstatedir}/cache/%{pkg_name}
 %global tempdir %{cachedir}/temp
 %global workdir %{cachedir}/work
 %global _initrddir %{_sysconfdir}/init.d
@@ -247,8 +247,8 @@ find . -type f \( -name "*.bat" -o -name "*.class" -o -name Thumbs.db -o -name "
 %{__sed} -e "s|/etc/tomcat|%_sysconfdir/tomcat|g" \
          -e "s|/etc/sysconfig/tomcat|%_sysconfdir/sysconfig/tomcat|g"\
          -e "s|/usr/libexec/tomcat|%_libexecdir/tomcat|g"\
-         -e "s|/var/lib/tomcats|%_var/lib/tomcats|g"\
-         -e "s|/var/cache/tomcat|%_var/cache/tomcat|g"\
+         -e "s|/var/lib/tomcats|%_localstatedir/lib/tomcats|g"\
+         -e "s|/var/cache/tomcat|%_localstatedir/cache/tomcat|g"\
          -e "s|/var/run/jsvc-tomcat|/var/run/toto-tomcat70-jsvc-tomcat|g"\
          -i %{SOURCE1} %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} %{SOURCE10} %{SOURCE11} %{SOURCE20} %{SOURCE21} %{SOURCE22} %{SOURCE23} %{SOURCE24}
 
