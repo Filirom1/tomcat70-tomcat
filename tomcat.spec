@@ -57,7 +57,7 @@
 Name:          %{?scl_prefix}tomcat
 Epoch:         0
 Version:       %{major_version}.%{minor_version}.%{micro_version}
-Release:       5%{?dist}
+Release:       6%{?dist}
 Summary:       Apache Servlet/JSP Engine, RI for Servlet %{servletspec}/JSP %{jspspec} API
 
 Group:         System Environment/Daemons
@@ -687,6 +687,9 @@ fi
 %attr(0644,root,root) %{_unitdir}/%{?scl_prefix}%{pkg_name}-jsvc.service
 
 %changelog
+* Sun Oct 08 2017 Romain Philibert <Filirom1@gmail.com> 7.0.82-6
+- wip (Filirom1@gmail.com)
+
 * Sun Oct 08 2017 Romain Philibert <Filirom1@gmail.com> 7.0.82-5
 - wip (Filirom1@gmail.com)
 
