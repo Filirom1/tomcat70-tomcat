@@ -250,7 +250,7 @@ find . -type f \( -name "*.bat" -o -name "*.class" -o -name Thumbs.db -o -name "
          -e "s|/var/lib/tomcats|%_var/lib/tomcats|g"\
          -e "s|/var/cache/tomcat|%_var/cache/tomcat|g"\
          -e "s|/var/run/jsvc-tomcat|/var/run/toto-tomcat70-jsvc-tomcat|g"\
-         -i %{SOURCE1} %{SOURCE6} %{SOURCE20} %{SOURCE11} %{SOURCE7} %{SOURCE4} %{SOURCE21} %{SOURCE24} %{SOURCE22} 
+         -i %{SOURCE1} %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} %{SOURCE10} %{SOURCE11} %{SOURCE20} %{SOURCE21} %{SOURCE22} %{SOURCE23} %{SOURCE24}
 
 %build
 export OPT_JAR_LIST="xalan-j2-serializer"
